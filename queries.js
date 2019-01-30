@@ -1,11 +1,6 @@
-const Pool = require(`pg`).Pool
-const pool = new Pool({
-    user: `samuvel`,
-    host: `localhost`,
-    database: `microlearning`,
-    password: `samuvel`,
-    port: 5432,
-})
+const Pool = require('./dbcredentials').pool
+const pool =  Pool()
+//responding users with the array of shared links
 const getUserLearningLink = (request, response) => {
     const userId = (request.params.uuid)
     console.log(userId)
@@ -21,9 +16,11 @@ const getUserLearningLink = (request, response) => {
             response.status(200).json(link)
         })
 }
+
+//converting array of json to array of links
 function convertArrayOfJsonToLinks(dataArray) {
-    const links=[]
-    for(var i=0;i<dataArray.length;i++){
+    const links = []
+    for (var i = 0; i < dataArray.length; i++) {
         const stringfyObject = JSON.stringify(dataArray[i])
         const objectValue = JSON.parse(stringfyObject)
         links.push(objectValue['link'])
