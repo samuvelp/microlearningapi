@@ -1,5 +1,5 @@
-const Pool = require('./dbcredentials').pool
-const pool =  Pool()
+const Pool = require('../../dbcredentials').pool
+const pool = Pool()
 //responding users with the array of shared links
 const getUserLearningLink = (request, response) => {
     const userId = (request.params.uuid)
@@ -17,8 +17,13 @@ const getUserLearningLink = (request, response) => {
         })
 }
 
+//update database for the links queried
+const updateTableForLinksQueried = () => {
+    //update lastsent, increment sessions
+}
+
 //converting array of json to array of links
-function convertArrayOfJsonToLinks(dataArray) {
+const convertArrayOfJsonToLinks = (dataArray) => {
     const links = []
     for (var i = 0; i < dataArray.length; i++) {
         const stringfyObject = JSON.stringify(dataArray[i])

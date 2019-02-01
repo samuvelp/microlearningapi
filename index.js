@@ -1,6 +1,7 @@
 const express = require(`express`)
 const bodyParser = require(`body-parser`)
-const db = require(`./queries`)
+const userLearningLinksHandler = require(`./bin/queries/UserLearningLinksHandler`)
+const topicSubscribeHandler = require(`./bin/post/topicSubscribeHandler`)
 const port = 4000
 const app = express()
 
@@ -10,8 +11,8 @@ app.use(
     extended: true,
   })
 )
-
-app.get(`/userLearningLink/:uuid`, db.getUserLearningLink)
+app.get(`/subscribe/`, topicSubscribeHandler.subscribeToTopic)
+app.get(`/userLearningLink/:uuid`, userLearningLinksHandler.getUserLearningLink)
 
 app.get('/', (request, response) => {
   response.json({ info: 'Microlearning platoform' })
