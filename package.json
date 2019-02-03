@@ -9,6 +9,7 @@
   "author": "samuvel p",
   "license": "ISC",
   "dependencies": {
+    "deathbycaptcha": "0.0.3",
     "express": "^4.16.4",
     "google-search-scraper": "^0.1.0",
     "google-trends-api": "^4.8.0",
