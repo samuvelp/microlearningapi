@@ -1,43 +1,41 @@
 const scraper = require(`google-search-scraper`)
 const deathByCaptcha = require('deathbycaptcha')
-const dbc = new deathByCaptcha('username','password')
+const dbc = new deathByCaptcha('username', 'password')
 const Pool = require(`../../dbcredentials`).pool
 const pool = Pool()
 
 
-const searchLinkForTopic = ((topic, userId) => {
+const searchLinkForTopic = ((topic, userId, response) => {
     const links = []
     const options = {
         query: '"${topic} site:medium.com"',
         limit: 10,
         age: 'y',
-        solver:dbc,
+        solver: dbc,
         params: { query: "what is npm" }
     }
 
-    const promise = new Promise((resolve, reject) => {
+    new Promise((resolve, reject) => {
         scraper.search(options, (err, url, meta) => {
             try {
-                console.log(err)
                 console.log(url)
-                // if (url != undefined) {
-                //     links.push(url)
-                //     resolve(links, userId)
-                // }
+                links.push(url)
+                resolve(links, userId)
             } catch (err) {
                 console.log(err)
                 reject("Server error")
             }
         })
-    })
-    promise.then(() => {
-        checkAndCreateLinkRecord(links, 0, topic, userId)
+    }).then(() => {
+        checkAndCreateLinkRecord(links, 0, topic, userId, response)
+        return true
     }).catch((err) => {
         console.log(err)
+        return false
     })
 })
 
-const checkAndCreateLinkRecord = (links, linkIndex, topic, userId) => {
+const checkAndCreateLinkRecord = (links, linkIndex, topic, userId, response) => {
     new Promise((resolve, reject) => {
         isLinkInDB(userId, links[linkIndex])
             .then((value) => {
@@ -46,6 +44,8 @@ const checkAndCreateLinkRecord = (links, linkIndex, topic, userId) => {
                 if (!value) {
                     console.log("inside false scope")
                     createRecord(userId, links[linkIndex])
+                    //returning response with inserted link
+                    response.status(200).json(links[linkIndex])
                     reject("new link created")
                 } else if (value && (links.length > linkIndex)) {
                     resolve(true)
@@ -59,7 +59,7 @@ const checkAndCreateLinkRecord = (links, linkIndex, topic, userId) => {
         .then((result) => {
             console.log(result)
             if (result) {
-                checkAndCreateLinkRecord(links, linkIndex + 1, topic, userId)
+                checkAndCreateLinkRecord(links, linkIndex + 1, topic, userId, response)
             } else {
                 // superSearchLinkForTopic(topic, userId)
                 console.log("main super search executed")
@@ -78,6 +78,8 @@ const superSearchLinkForTopic = (topic, userId) => {
 const isLinkInDB = (userId, link) => {
     return new Promise((resolve, reject) => {
         console.log('isLinkInDB()', 'link:', link, 'userid:', userId)
+        if (link === undefined)
+            resolve(true)
         pool.query(`select * from learninglinks where userid = $1 and link = $2`, [userId, link], (error, results) => {
             if (results.rowCount === 0) {
                 console.log(false)
@@ -92,26 +94,28 @@ const isLinkInDB = (userId, link) => {
 
 const createRecord = (userId, link) => {
     console.log('createRecord()', 'userid:', userId, 'link:', link)
-    pool.query('insert into learninglinks (userid,link,createdat,lastsent,sessions) values($1,$2,$3,$4,$5)', [userId, link, new Date().getTime()], (error, results) => {
+    pool.query('insert into learninglinks (userid,link,createdat,lastsent,sessions) values($1,$2,$3,$4,$5)', [userId, link, new Date().getTime(), 0, 0], (error, results) => {
         try {
-            console.log(`Inserted into learninglink for userid :$1 with link:$2`, [results.userid, results.link])
+            console.log('Inserted into learninglink for userid:', userId, 'with link:', link)
         } catch (error) {
-            console.log('error creating record')
+            console.log(error, 'error creating record')
         }
     })
 }
 module.exports = {
     searchLinkForTopic
 }
-//create db with required column
+//TODO
+//fix captcha error 
+// or pick another package for scraper
+//complete the super search logic
+//=---done---=
 
-// getLinks
-// for(links){
-//     if(!links in db){
-//     store in db
-//     send notification
-//     break
-//     }
+//complete topic subscriber - i.e to update table when new response been sent
+//get values from router
 
-// }
-// getMoreNewLinks by differing age, query string, 
+//start schedular to schedule job for user
+
+//start push notification
+
+//
