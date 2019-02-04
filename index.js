@@ -11,7 +11,8 @@ app.use(
     extended: true,
   })
 )
-app.get(`/subscribe/`, topicSubscribeHandler.subscribeToTopic)
+app.get(`/subscribe/:uuid/:topic`, topicSubscribeHandler.subscribeToTopic)
+
 app.get(`/userLearningLink/:uuid`, userLearningLinksHandler.getUserLearningLink)
 
 app.get('/', (request, response) => {

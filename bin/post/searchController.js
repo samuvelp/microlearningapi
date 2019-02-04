@@ -12,9 +12,9 @@ const searchLinkForTopic = ((topic, userId, response) => {
         limit: 10,
         age: 'y',
         solver: dbc,
-        params: { query: "what is npm" }
+        // params: { query: 'what is "${topic}"' }
     }
-
+    console.log("QQQQQQQ",topic)
     new Promise((resolve, reject) => {
         scraper.search(options, (err, url, meta) => {
             try {
@@ -46,6 +46,7 @@ const checkAndCreateLinkRecord = (links, linkIndex, topic, userId, response) => 
                     createRecord(userId, links[linkIndex])
                     //returning response with inserted link
                     response.status(200).json(links[linkIndex])
+                    links = []
                     reject("new link created")
                 } else if (value && (links.length > linkIndex)) {
                     resolve(true)
