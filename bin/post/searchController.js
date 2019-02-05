@@ -8,7 +8,8 @@ const pool = Pool()
 const searchLinkForTopic = ((topic, userId, response) => {
     const links = []
     const options = {
-        query: '"${topic} site:medium.com"',
+        query: `${topic} site:medium.com`,
+        // query: '"${topic} site:medium.com"',
         limit: 10,
         age: 'y',
         solver: dbc,
@@ -111,6 +112,7 @@ module.exports = {
 // or pick another package for scraper
 //complete the super search logic
 //=---done---=
+//DDD working now
 
 //complete topic subscriber - i.e to update table when new response been sent
 //get values from router
@@ -120,3 +122,4 @@ module.exports = {
 //start push notification
 
 //
+////fix topic issue where every query gets the same response 
