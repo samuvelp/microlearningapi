@@ -6,20 +6,32 @@ const getUserLearningLink = (request, response) => {
     console.log(userId)
     pool.query(`select * from learninglinks where userid = $1`, [userId],
         (error, results) => {
-            if (error) {
-                throw error
-                return
-                console.log("error")
+            try {
+                const links = convertArrayOfJsonToLinks(results.rows)
+                console.log("Link sent")
+                updateTableForLinksQueried(userId, links)
+                response.status(200).json(links)
+            } catch (error) {
+                console.log(error)
+                response.status(500).json(error)
             }
-            const link = convertArrayOfJsonToLinks(results.rows)
-            console.log(link)
-            response.status(200).json(link)
         })
 }
 
 //update database for the links queried
-const updateTableForLinksQueried = () => {
+const updateTableForLinksQueried = (userid, links) => {
     //update lastsent, increment sessions
+    for (var i = 0; i < links.length; i++) {
+        pool.query(`update learninglinks set lastsent = $1,sessions = sessions + $2 where userid =$3 and link = $4`,
+            [new Date().getTime(), 1, userid, links[i]],
+            (error, results) => {
+                if (error) {
+                    console.log(error, `update error`)
+                } else {
+                    console.log("Updated")
+                }
+            })
+    }
 }
 
 //converting array of json to array of links
