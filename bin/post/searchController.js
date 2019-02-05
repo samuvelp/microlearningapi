@@ -29,10 +29,8 @@ const searchLinkForTopic = ((topic, userId, response) => {
         })
     }).then(() => {
         checkAndCreateLinkRecord(links, 0, topic, userId, response)
-        return true
     }).catch((err) => {
         console.log(err)
-        return false
     })
 })
 
@@ -108,18 +106,10 @@ module.exports = {
     searchLinkForTopic
 }
 //TODO
-//fix captcha error 
-// or pick another package for scraper
-//complete the super search logic
-//=---done---=
-//DDD working now
 
-//complete topic subscriber - i.e to update table when new response been sent
-//get values from router
+//super search logic
 
 //start schedular to schedule job for user
 
 //start push notification
 
-//
-////fix topic issue where every query gets the same response 
