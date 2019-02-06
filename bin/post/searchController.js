@@ -13,9 +13,13 @@ const searchLinkForTopic = ((topic, userId, response) => {
         limit: 10,
         age: 'y',
         solver: dbc,
-        // params: { query: 'what is "${topic}"' }
+        // params: {
+        //     query: `what is "${topic}"`,
+        //     query: `how  "${topic}"`,
+        //     query: `where "${topic}"`
+        // }
     }
-    console.log("QQQQQQQ",topic)
+    console.log("QQQQQQQ", topic)
     new Promise((resolve, reject) => {
         scraper.search(options, (err, url, meta) => {
             try {
@@ -55,13 +59,16 @@ const checkAndCreateLinkRecord = (links, linkIndex, topic, userId, response) => 
                     //else do the super special link query search
                 }
             })
+            .catch(() => {
+
+            })
     })
         .then((result) => {
             console.log(result)
             if (result) {
                 checkAndCreateLinkRecord(links, linkIndex + 1, topic, userId, response)
             } else {
-                // superSearchLinkForTopic(topic, userId)
+                superSearchLinkForTopic(topic, userId, response)
                 console.log("main super search executed")
             }
         })
@@ -70,11 +77,50 @@ const checkAndCreateLinkRecord = (links, linkIndex, topic, userId, response) => 
         })
 }
 
-const superSearchLinkForTopic = (topic, userId) => {
-    const superTopicSearchQuery = topic
-    searchLinkForTopic(superSearchLinkForTopic, userId)
+const superSearchLinkForTopic = (topic, userId, response) => {
+    const superTopicSearchQuery = randomQuestion(topic)
+    searchLinkForTopic(superTopicSearchQuery, userId, response)
 }
 
+const randomQuestion = (topic) => {
+    var specialQuery = topic
+    const max = 10
+    const min = 1
+    const randomNumber = Math.floor(Math.random() * (max - min + 1) + min)
+    switch (randomNumber) {
+        case 1:
+            specialQuery = `what is the latest trends of ${topic}`
+            break;
+        case 2:
+            specialQuery = `example of ${topic}`
+            break;
+        case 3:
+            specialQuery = `sample of ${topic}`
+            break;
+        case 4:
+            specialQuery = `knowledge of ${topic}`
+            break;
+        case 5:
+            specialQuery = `how to ${topic}`
+            break;
+        case 6:
+            specialQuery = `which is the best ${topic}`
+            break;
+        case 7:
+            specialQuery = `${topic} is used in`
+            break;
+        case 8:
+            specialQuery = `benefits of knowing ${topic}`
+            break;
+        case 9:
+            specialQuery = `when is ${topic}`
+            break;
+        case 10:
+            specialQuery = `what is ${topic}`
+            break;
+    }
+    return specialQuery
+}
 const isLinkInDB = (userId, link) => {
     return new Promise((resolve, reject) => {
         console.log('isLinkInDB()', 'link:', link, 'userid:', userId)
