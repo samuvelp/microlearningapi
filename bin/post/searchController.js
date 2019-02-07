@@ -4,11 +4,11 @@ const dbc = new deathByCaptcha('username', 'password')
 const Pool = require(`../../dbcredentials`).pool
 const pool = Pool()
 
-
 const searchLinkForTopic = ((topic, userId, response) => {
     const links = []
+    const superTopicSearchQuery = randomQuestion(topic)
     const options = {
-        query: `${topic} site:medium.com`,
+        query: `${superTopicSearchQuery} site:medium.com`,
         // query: '"${topic} site:medium.com"',
         limit: 10,
         age: 'y',
@@ -19,7 +19,7 @@ const searchLinkForTopic = ((topic, userId, response) => {
         //     query: `where "${topic}"`
         // }
     }
-    console.log("QQQQQQQ", topic)
+    console.log("QQQQQQQ", superTopicSearchQuery)
     new Promise((resolve, reject) => {
         scraper.search(options, (err, url, meta) => {
             try {
@@ -48,7 +48,7 @@ const checkAndCreateLinkRecord = (links, linkIndex, topic, userId, response) => 
                     console.log("inside false scope")
                     createRecord(userId, links[linkIndex])
                     //returning response with inserted link
-                    response.status(200).json(links[linkIndex])
+                    response.status(200).json(finalLinkJson(links[linkIndex]))
                     links = []
                     reject("new link created")
                 } else if (value && (links.length > linkIndex)) {
@@ -77,13 +77,41 @@ const checkAndCreateLinkRecord = (links, linkIndex, topic, userId, response) => 
         })
 }
 
+
+const isLinkInDB = (userId, link) => {
+    return new Promise((resolve, reject) => {
+        console.log('isLinkInDB()', 'link:', link, 'userid:', userId)
+        if (link === undefined)
+            resolve(true)
+        pool.query(`select * from learninglinks where userid = $1 and link = $2`, [userId, link], (error, results) => {
+            if (results.rowCount === 0) {
+                console.log(false)
+                resolve(false)
+            } else {
+                console.log(true)
+                resolve(true)
+            }
+        })
+    })
+}
+
+const createRecord = (userId, link) => {
+    console.log('createRecord()', 'userid:', userId, 'link:', link)
+    pool.query('insert into learninglinks (userid,link,createdat,lastsent,sessions) values($1,$2,$3,$4,$5)', [userId, link, new Date().getTime(), 0, 0], (error, results) => {
+        try {
+            console.log('Inserted into learninglink for userid:', userId, 'with link:', link)
+        } catch (error) {
+            console.log(error, 'error creating record')
+        }
+    })
+}
 const superSearchLinkForTopic = (topic, userId, response) => {
     const superTopicSearchQuery = randomQuestion(topic)
     searchLinkForTopic(superTopicSearchQuery, userId, response)
 }
 
 const randomQuestion = (topic) => {
-    var specialQuery = topic
+    var specialQuery = ""
     const max = 10
     const min = 1
     const randomNumber = Math.floor(Math.random() * (max - min + 1) + min)
@@ -121,32 +149,11 @@ const randomQuestion = (topic) => {
     }
     return specialQuery
 }
-const isLinkInDB = (userId, link) => {
-    return new Promise((resolve, reject) => {
-        console.log('isLinkInDB()', 'link:', link, 'userid:', userId)
-        if (link === undefined)
-            resolve(true)
-        pool.query(`select * from learninglinks where userid = $1 and link = $2`, [userId, link], (error, results) => {
-            if (results.rowCount === 0) {
-                console.log(false)
-                resolve(false)
-            } else {
-                console.log(true)
-                resolve(true)
-            }
-        })
-    })
-}
 
-const createRecord = (userId, link) => {
-    console.log('createRecord()', 'userid:', userId, 'link:', link)
-    pool.query('insert into learninglinks (userid,link,createdat,lastsent,sessions) values($1,$2,$3,$4,$5)', [userId, link, new Date().getTime(), 0, 0], (error, results) => {
-        try {
-            console.log('Inserted into learninglink for userid:', userId, 'with link:', link)
-        } catch (error) {
-            console.log(error, 'error creating record')
-        }
-    })
+const finalLinkJson = (link) => {
+    return json = `{`+
+        `url : ${link}`+
+    `}`
 }
 module.exports = {
     searchLinkForTopic
