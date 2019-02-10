@@ -3,7 +3,12 @@ const Pool = require('../../dbcredentials').pool
 const searchController = require('./searchController')
 const pool = Pool()
 
-
+const subscribeToTopic = (request, response) => {
+    const userid = request.params.uuid
+    const topic = request.params.topic
+    const deviceToken = request.params.devicetoken
+    subscribe(topic,userid,deviceToken,response)    
+}
 const subscribe = (topic, userId, deviceToken, response) => {
     storeUserSubscription(topic, userId, deviceToken, response)
 }
@@ -24,3 +29,10 @@ const storeUserSubscription = (topic, userId, deviceToken, response) => {
             }
         })
 }
+module.exports={
+    subscribeToTopic
+}
+//todo
+// connect topic subscribe handler to schedular instead of connecting it directly to search controller
+//host the server and database
+//build client and test it out
