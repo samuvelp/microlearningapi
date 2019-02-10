@@ -1,7 +1,7 @@
 const express = require(`express`)
 const bodyParser = require(`body-parser`)
 const userLearningLinksHandler = require(`./bin/queries/UserLearningLinksHandler`)
-const topicSubscribeHandler = require(`./bin/post/topicSubscribeHandler`)
+const schedular = require(`./bin/post/schedular`)
 const port = 4000
 const app = express()
 
@@ -11,7 +11,7 @@ app.use(
     extended: true,
   })
 )
-app.get(`/subscribe/:uuid/:topic`, topicSubscribeHandler.subscribeToTopic)
+app.get(`/subscribe/:uuid/:topic/:devicetoken`,schedular.subscribeToTopic)
 
 app.get(`/userLearningLink/:uuid`, userLearningLinksHandler.getUserLearningLink)
 
