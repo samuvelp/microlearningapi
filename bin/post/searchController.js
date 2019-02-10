@@ -1,6 +1,7 @@
 const scraper = require(`google-search-scraper`)
 const deathByCaptcha = require('deathbycaptcha')
 const dbc = new deathByCaptcha('username', 'password')
+const pushNotification = require(`./pushNotification`)
 const Pool = require(`../../dbcredentials`).pool
 const pool = Pool()
 
@@ -100,6 +101,7 @@ const createRecord = (userId, link) => {
     pool.query('insert into learninglinks (userid,link,createdat,lastsent,sessions) values($1,$2,$3,$4,$5)', [userId, link, new Date().getTime(), 0, 0], (error, results) => {
         try {
             console.log('Inserted into learninglink for userid:', userId, 'with link:', link)
+            sendPushNotification(userId, link)
         } catch (error) {
             console.log(error, 'error creating record')
         }
@@ -151,9 +153,38 @@ const randomQuestion = (topic) => {
 }
 
 const finalLinkJson = (link) => {
-    return json = `{`+
-        `url : ${link}`+
-    `}`
+    return json = `{` +
+        `url : ${link}` +
+        `}`
+}
+const sendPushNotification = (userId, link) => {
+    getDeviceToken(userId)
+        .then((value) => {
+            const payload={
+                title : "Today's microlearning content",
+                body : "We just brought you the best resource for you to learn",
+                url : link
+            }
+            pushNotification.sendNotification(value,payload)
+        })
+        .catch((value) => {
+
+        })
+    // pushNotification.sendNotification()
+}
+const getDeviceToken = (userId) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`SELECT devicetoken FROM subscription WHERE userid = $1 order by subscribedat desc limit 1`,
+            [userId], (error, result) => {
+                if (result.rowCount > 0) {
+                    console.log(result.rows[0].devicetoken)
+                    resolve(result.rows[0].devicetoken)
+                } else {
+                    console.log(error)
+                    reject()
+                }
+            })
+    })
 }
 module.exports = {
     searchLinkForTopic
