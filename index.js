@@ -2,7 +2,7 @@ const express = require(`express`)
 const bodyParser = require(`body-parser`)
 const userLearningLinksHandler = require(`./bin/queries/UserLearningLinksHandler`)
 const schedular = require(`./bin/post/schedular`)
-const port = 4000
+const port = 5000
 const app = express()
 
 app.use(bodyParser.json())
@@ -16,7 +16,7 @@ app.get(`/subscribe/:uuid/:topic/:devicetoken`,schedular.subscribeToTopic)
 app.get(`/userLearningLink/:uuid`, userLearningLinksHandler.getUserLearningLink)
 
 app.get('/', (request, response) => {
-  response.json({ info: 'Microlearning platoform' })
+  response.json({ info: 'Microlearning platform' })
 })
 
 app.listen(port, () => {
