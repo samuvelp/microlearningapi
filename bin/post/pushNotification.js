@@ -1,5 +1,6 @@
 const admin = require("firebase-admin");
-const serviceAccount = require("/home/samuvel/Documents/apidev/microLearning/fb-admin.json");
+// const serviceAccount = require("/home/samuvel/Documents/apidev/microLearning/fb-admin.json");
+const serviceAccount = require(`../../fb-admin.json`)
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
