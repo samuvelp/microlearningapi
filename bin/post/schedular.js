@@ -7,6 +7,7 @@ const subscribeToTopic = (request, response) => {
     const userid = request.params.uuid
     const topic = request.params.topic
     const deviceToken = request.params.devicetoken
+    console.log("new sub request",userid,topic)
     subscribe(topic,userid,deviceToken,response)    
 }
 const subscribe = (topic, userId, deviceToken, response) => {

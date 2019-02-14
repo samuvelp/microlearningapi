@@ -84,7 +84,7 @@ const isLinkInDB = (userId, link) => {
         console.log('isLinkInDB()', 'link:', link, 'userid:', userId)
         if (link === undefined)
             resolve(true)
-        pool.query(`select * from learninglinks where userid = $1 and link = $2`, [userId, link], (error, results) => {
+        pool.query(`SELECT * FROM learninglinks WHERE userid = $1 and link = $2`, [userId, link], (error, results) => {
             if (results.rowCount === 0) {
                 console.log(false)
                 resolve(false)
